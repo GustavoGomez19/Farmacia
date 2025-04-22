@@ -29,6 +29,8 @@ public class ProductsController implements ActionListener, MouseListener, KeyLis
         this.views = views;
         //Botón de registrar productos
         this.views.btn_register_product.addActionListener(this);
+        //Botón de modificar producto
+        this.views.btn_update_product.addActionListener(this);
         //Tabla
         this.views.products_table.addMouseListener(this);
         this.views.txt_search_product.addKeyListener(this);
@@ -54,9 +56,37 @@ public class ProductsController implements ActionListener, MouseListener, KeyLis
                 if (productDao.registerProductQuery(product)) {
                     cleanTable();
                     listAllProducts();
+                    cleanFields();
                     JOptionPane.showMessageDialog(null, "Producto registrado con éxito.");
                 } else {
                     JOptionPane.showMessageDialog(null, "Ha ocurrido un error al registrar el producto.");
+                }
+            }
+        } else if (e.getSource() == views.btn_update_product) {
+            if (views.txt_product_code.getText().equals("")
+                    || views.txt_product_name.getText().equals("")
+                    || views.txt_product_description.getText().equals("")
+                    || views.txt_product_unit_price.getText().equals("")
+                    || views.cmb_product_category.getSelectedItem().toString().equals("")) {
+                JOptionPane.showMessageDialog(null, "Todos los cmapos son obligatorios.");
+            } else {
+                product.setCode(Integer.parseInt(views.txt_product_code.getText()));
+                product.setName(views.txt_product_name.getText().trim());
+                product.setDescription(views.txt_product_description.getText().trim());
+                product.setUnitPrice(Double.parseDouble(views.txt_product_unit_price.getText()));
+                //Obtener el ID de la categoría
+                DynamicComboBox category_id = (DynamicComboBox) views.cmb_product_category.getSelectedItem();
+                product.setCategory_id(category_id.getId());
+                //Pasar ID al método
+                product.setId(Integer.parseInt(views.txt_product_id.getText()));
+                
+                if (productDao.updateProductQuery(product)) {
+                    cleanTable();
+                    cleanFields();
+                    listAllProducts();
+                    JOptionPane.showMessageDialog(null, "Datos del producto modificados con éxito.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Ha ocurrido un error al modificar los datos del producto.");
                 }
             }
         }
@@ -155,6 +185,14 @@ public class ProductsController implements ActionListener, MouseListener, KeyLis
             model.removeRow(i);
             i = i - 1;
         }
+    }
+    
+    public void cleanFields() {
+        views.txt_product_id.setText("");
+        views.txt_product_code.setText("");
+        views.txt_product_name.setText("");
+        views.txt_product_description.setText("");
+        views.txt_product_unit_price.setText("");
     }
 
 }
